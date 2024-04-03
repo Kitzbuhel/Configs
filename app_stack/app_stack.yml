@@ -1,12 +1,45 @@
 version: "3.8"
 
 services:
+    authPostgresDB:
+        image: postgres
+        environment:
+            POSTGRES_DB: users
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin
+        ports:
+            - "5432:5432"
+        networks:
+            - authDB
+
+    authService:
+        image: sunset01/idp-auth-service:0.0.2
+        environment:
+            spring.datasource.url: jdbc:postgresql://authPostgresDB:5432/users
+            SPRING_DATASOURCE_USERNAME: admin
+            SPRING_DATASOURCE_PASSWORD: admin
+        ports:
+            - "8080:8080"
+        networks:
+            - logging
+            - authDB
+
     prometheus:
         image: prom/prometheus
         ports:
             - "9090:9090"
+        volumes:
+            - ../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+        networks:
+            - logging
+
+    grafana:
+        image: grafana/grafana
+        ports:
+            - "3000:3000"
         networks:
             - logging
 
 networks:
     logging:
+    authDB:
