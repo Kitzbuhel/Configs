@@ -2,7 +2,7 @@ _format_version: "2.1"
 
 services:
   - name: authService
-    url: http://authService:8080
+    url: http://app_stack_authService:8080
     routes:
       - name: register-route
         paths:
@@ -14,7 +14,7 @@ services:
         paths:
           - /api/user/status
   - name: pgAdmin
-    url: http://pgAdmin:80
+    url: http://app_stack_pgAdmin:80/login
     routes:
       - name: pgAdmin-route
         paths:
