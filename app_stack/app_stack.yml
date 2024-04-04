@@ -23,8 +23,9 @@ services:
         networks:
             - logging
             - authDB
+            - internal
 
-    pgadmin:
+    pgAdmin:
         image: dpage/pgadmin4
         environment:
             PGADMIN_DEFAULT_EMAIL: admin@example.com
@@ -33,6 +34,20 @@ services:
             - "5050:80"
         networks:
             - authDB
+            - internal
+
+    kong:
+        image: kong
+        volumes:
+            - ../kong:/usr/local/kong/declarative
+        environment:
+            KONG_DATABASE: "off"
+            KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+        ports:
+            - "8000:8000"
+            - "8443:8443"
+        networks:
+            - internal
 
     prometheus:
         image: prom/prometheus
@@ -53,3 +68,4 @@ services:
 networks:
     logging:
     authDB:
+    internal:

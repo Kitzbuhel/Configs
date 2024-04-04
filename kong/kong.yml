@@ -1,0 +1,21 @@
+_format_version: "2.1"
+
+services:
+  - name: authService
+    url: http://authService:8080
+    routes:
+      - name: register-route
+        paths:
+          - /api/user/register
+      - name: login-route
+        paths:
+          - /api/user/login
+      - name: status-route
+        paths:
+          - /api/user/status
+  - name: pgAdmin
+    url: http://pgAdmin:80
+    routes:
+      - name: pgAdmin-route
+        paths:
+          - /pgAdmin
