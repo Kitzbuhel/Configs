@@ -3,8 +3,14 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets: ['prometheus:9090']
+
   - job_name: 'authService'
     scrape_interval: 5s
     static_configs:
-      - targets: ['authService:8080']
+      - targets: ['authService:8079']
     metrics_path: '/actuator/prometheus'
+
+  - job_name: 'kong'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['kong:8001']

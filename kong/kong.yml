@@ -1,21 +1,32 @@
 _format_version: "2.1"
 
 services:
-  - name: authService
-    url: http://authService:8080/api/user
+  - name: auth-service
+    url: http://authService:8079
     routes:
-      - name: register-route
+      - name: auth-routes
         paths:
           - /api/user/register
-      - name: login-route
-        paths:
           - /api/user/login
-      - name: status-route
-        paths:
-          - /api/user/status/:id
-  - name: pgAdmin
-    url: http://pgAdmin:80/login
+          - /api/user/status/*
+        strip_path: false
+
+  - name: adminer-service
+    url: http://adminer:8080
     routes:
-      - name: pgAdmin-route
+      - name: adminer-login-routes
         paths:
-          - /pgAdmin
+          - /adminer
+        strip_path: true
+      - name: adminer-other-routes
+        paths:
+          - /adminer/*
+        strip_path: false
+
+plugins:
+  - name: prometheus
+    config:
+      per_consumer: true
+      status_code_metrics: true
+      latency_metrics: true
+      bandwidth_metrics: true

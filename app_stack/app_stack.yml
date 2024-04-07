@@ -1,54 +1,70 @@
 version: "3.8"
 
 services:
+
+########## Auth Service DB ##########
     authPostgresDB:
         image: postgres
         environment:
             POSTGRES_DB: users
             POSTGRES_USER: admin
             POSTGRES_PASSWORD: admin
-        ports:
-            - "5432:5432"
+            POSTGRES_PORT: 5432
         networks:
-            - authDB
+            - authDB-adminer
+            - authDB-authService
 
+########## Auth Service ##########
     authService:
-        image: sunset01/idp-auth-service:0.0.2
+        image: sunset01/idp-auth-service:0.0.4
+        depends_on:
+            - authPostgresDB
         environment:
             spring.datasource.url: jdbc:postgresql://authPostgresDB:5432/users
             SPRING_DATASOURCE_USERNAME: admin
             SPRING_DATASOURCE_PASSWORD: admin
-        ports:
-            - "8080:8080"
         networks:
+            - authDB-authService
             - logging
-            - authDB
-            - internal
+            - kong
 
-    pgAdmin:
-        image: dpage/pgadmin4
-        environment:
-            PGADMIN_DEFAULT_EMAIL: admin@example.com
-            PGADMIN_DEFAULT_PASSWORD: admin
-        ports:
-            - "5050:80"
+########## Adminer ##########
+    adminer:
+        image: adminer
+        depends_on:
+            - authPostgresDB
         networks:
-            - authDB
-            - internal
+            - kong
+            - authDB-adminer
 
+########## Kong API Gateway ##########
     kong:
         image: kong
+        depends_on:
+            - authService
+            - adminer
         volumes:
             - ../kong:/usr/local/kong/declarative
         environment:
             KONG_DATABASE: "off"
             KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+            KONG_PROXY_ACCESS_LOG: /dev/stdout
+            KONG_ADMIN_ACCESS_LOG: /dev/stdout
+            KONG_PROXY_ERROR_LOG: /dev/stderr
+            KONG_ADMIN_ERROR_LOG: /dev/stderr
+            KONG_ADMIN_LISTEN: 0.0.0.0:8001
         ports:
             - "8000:8000"
-            - "8443:8443"
+            - "8001:8001"
+        deploy:
+            placement:
+                constraints:
+                    - node.role == manager
         networks:
-            - internal
+            - kong
+            - logging
 
+########## Prometheus ##########
     prometheus:
         image: prom/prometheus
         ports:
@@ -58,6 +74,7 @@ services:
         networks:
             - logging
 
+########## Grafana ##########
     grafana:
         image: grafana/grafana
         ports:
@@ -67,5 +84,6 @@ services:
 
 networks:
     logging:
-    authDB:
-    internal:
+    authDB-adminer:
+    authDB-authService:
+    kong:
