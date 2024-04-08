@@ -74,6 +74,23 @@ services:
         networks:
             - logging
 
+########## Node Exporter ##########
+    nodeExporter:
+        image: prom/node-exporter
+        deploy:
+            mode: global
+        volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+        command:
+            - '--path.procfs=/host/proc'
+            - '--path.sysfs=/host/sys'
+            - '--path.rootfs=/rootfs'
+            - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+        networks:
+            - logging
+
 ########## Grafana ##########
     grafana:
         image: grafana/grafana
@@ -82,8 +99,43 @@ services:
         networks:
             - logging
 
+########## Portainer ##########
+    agent:
+        image: portainer/agent
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/lib/docker/volumes:/var/lib/docker/volumes
+        networks:
+            - agent_network
+        deploy:
+            mode: global
+            placement:
+                constraints: [ node.platform.os == linux ]
+
+    portainer:
+        image: portainer/portainer-ce
+        command: -H tcp://tasks.agent:9001 --tlsskipverify
+        ports:
+            - "9443:9443"
+            - "9000:9000"
+            - "8002:8000"
+        volumes:
+            - portainer_data:/data
+        networks:
+            - agent_network
+        deploy:
+            mode: replicated
+            replicas: 1
+            placement:
+                constraints: [ node.role == manager ]
+
+
 networks:
     logging:
     authDB-adminer:
     authDB-authService:
     kong:
+    agent_network:
+
+volumes:
+    portainer_data:

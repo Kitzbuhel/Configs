@@ -4,6 +4,28 @@ scrape_configs:
     static_configs:
       - targets: ['prometheus:9090']
 
+  - job_name: 'node resources'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['nodeExporter:9100']
+    params:
+      collect[]:
+        - cpu
+        - diskstats
+        - meminfo
+        - netdev
+        - netstat
+
+  - job_name: 'node storage'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['nodeExporter:9100']
+    params:
+      collect[]:
+        - filesystem
+        - filefd
+        - xfs
+
   - job_name: 'authService'
     scrape_interval: 5s
     static_configs:
