@@ -58,8 +58,7 @@ services:
             - "8001:8001"
         deploy:
             placement:
-                constraints:
-                    - node.role == manager
+                constraints: [node.role == manager]
         networks:
             - kong
             - logging
