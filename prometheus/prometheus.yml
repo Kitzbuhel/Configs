@@ -31,6 +31,18 @@ scrape_configs:
     static_configs:
       - targets: ['authService:8079']
     metrics_path: '/actuator/prometheus'
+  
+  - job_name: 'ioService'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['ioService:8081']
+    metrics_path: '/actuator/prometheus'
+
+  - job_name: 'todosLogicService'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['todosLogicService:8082']
+    metrics_path: '/actuator/prometheus'
 
   - job_name: 'kong'
     scrape_interval: 5s

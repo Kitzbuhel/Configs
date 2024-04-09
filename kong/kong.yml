@@ -10,6 +10,21 @@ services:
           - /api/user/login
           - /api/user/status/*
         strip_path: false
+  
+  - name: todos-logic-service
+    url: http://todosLogicService:8082
+    routes:
+      - name: todos-logic-routes
+        paths:
+          - /api/todo/getTodos
+          - /api/todo/getCompletedTodos
+          - /api/todo/getNotCompletedTodos
+          - /api/todo/addTodo
+          - /api/todo/deleteTodo/*
+          - /api/todo/updateTodo/*
+          - /api/todo/toggleTodoStatus/*
+          - /api/todo/deleteCompleted
+        strip_path: false
 
   - name: adminer-service
     url: http://adminer:8080

@@ -9,7 +9,7 @@ services:
             POSTGRES_DB: users
             POSTGRES_USER: admin
             POSTGRES_PASSWORD: admin
-            POSTGRES_PORT: 5432
+            PGPORT: 5432
         networks:
             - authDB-adminer
             - authDB-authService
@@ -27,6 +27,49 @@ services:
             - authDB-authService
             - logging
             - kong
+            - todoService-authService
+
+########## Todos DB ##########
+    todosPostgresDB:
+        image: postgres
+        environment:
+            POSTGRES_DB: todos
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin
+            PGPORT: 5432
+        networks:
+            - todosDB-adminer
+            - todosDB-ioService
+
+########## IOService ##########
+    ioService:
+        image: mehigh8/io-service:0.0.1
+        depends_on:
+            - todosPostgresDB
+        environment:
+            spring.datasource.url: jdbc:postgresql://todosPostgresDB:5432/todos
+            SPRING_DATASOURCE_USERNAME: admin
+            SPRING_DATASOURCE_PASSWORD: admin
+        networks:
+            - todosDB-ioService
+            - logging
+            - todoService-ioService
+
+########## TodosLogicService ##########
+    todosLogicService:
+        image: mehigh8/todos-logic-service:0.0.2
+        depends_on:
+            - ioService
+            - authService
+        environment:
+            IOSERVICE_BASE_URL: http://ioService:8081
+            AUTHSERVICE_BASE_URL: http://authService:8079
+        networks:
+            - kong
+            - logging
+            - todoService-ioService
+            - todoService-authService
+
 
 ########## Adminer ##########
     adminer:
@@ -36,6 +79,7 @@ services:
         networks:
             - kong
             - authDB-adminer
+            - todosDB-adminer
 
 ########## Kong API Gateway ##########
     kong:
@@ -133,6 +177,10 @@ networks:
     logging:
     authDB-adminer:
     authDB-authService:
+    todosDB-adminer:
+    todosDB-ioService:
+    todoService-ioService:
+    todoService-authService:
     kong:
     agent_network:
 
