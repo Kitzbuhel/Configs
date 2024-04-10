@@ -17,6 +17,7 @@ services:
 ########## Auth Service ##########
     authService:
         image: sunset01/idp-auth-service:0.0.4
+        container_name: authService
         depends_on:
             - authPostgresDB
         environment:
@@ -44,6 +45,7 @@ services:
 ########## IOService ##########
     ioService:
         image: mehigh8/io-service:0.0.1
+        container_name: ioService
         depends_on:
             - todosPostgresDB
         environment:
@@ -57,7 +59,7 @@ services:
 
 ########## TodosLogicService ##########
     todosLogicService:
-        image: mehigh8/todos-logic-service:0.0.2
+        image: mehigh8/todos-logic-service:0.0.7-debug
         depends_on:
             - ioService
             - authService
