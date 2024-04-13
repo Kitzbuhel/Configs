@@ -59,7 +59,7 @@ services:
 
 ########## TodosLogicService ##########
     todosLogicService:
-        image: mehigh8/todos-logic-service:0.0.7-debug
+        image: mehigh8/todos-logic-service:0.0.9
         depends_on:
             - ioService
             - authService
